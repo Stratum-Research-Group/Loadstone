@@ -2,6 +2,7 @@
 name = "loadstone"
 version = "0.1.0"
 description = "Local-first benchmark harness for comparing trainable sequence-model architectures"
+license = "MIT"
 requires-python = ">=3.12"
 dependencies = ["numpy>=2.0", "torch>=2.7", "pytest>=8.0"]
 

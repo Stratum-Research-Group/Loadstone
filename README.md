@@ -2,7 +2,8 @@
 
 Local-first benchmark harness for comparing trainable sequence-model
 architectures under controlled training and evaluation conditions. It implements
-`loadstone-architecture-benchmark-spec-v0.1`, starting with controlled MQAR.
+[`loadstone-architecture-benchmark-spec-v0.1`](docs/spec-v0.1.txt), starting with
+controlled MQAR.
 
 The app owns tasks, splits, solvers, scorers, budgets and reports. Networks live
 behind an adapter contract with declared capabilities; unsupported cells are
@@ -87,6 +88,16 @@ tests/                    Gate 0 (data/scorer) and Gate 1 (adapter mechanics)
 docs/REVIEW.md            review of the specification, decisions and risks
 studies/<study_id>/       protocol, approval, gates, jobs, tables, charts, report
 ```
+
+## Documents
+
+| File | What it is |
+|---|---|
+| [`docs/spec-v0.1.txt`](docs/spec-v0.1.txt) | the implementation contract this repo is built against |
+| [`docs/REVIEW.md`](docs/REVIEW.md) | review of that spec: decisions taken, measured findings, risks |
+| [`assets/logo/README.md`](assets/logo/README.md) | identity rules |
+
+Licensed under the [MIT License](LICENSE).
 
 ## Non-goals
 

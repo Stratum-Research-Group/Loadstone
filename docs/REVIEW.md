@@ -1,5 +1,7 @@
 # Review of `loadstone-architecture-benchmark-spec-v0.1`
 
+The reviewed document is [`spec-v0.1.txt`](spec-v0.1.txt) in this directory.
+
 Date of review: 12 November 2026. Scope: the specification as written, and the
 first implementation built from it (Milestone 1, MQAR).
 

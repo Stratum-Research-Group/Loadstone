@@ -211,10 +211,12 @@ def cmd_freeze(args) -> int:
     protocol = load_protocol(args.protocol)
     if args.hours is not None:
         protocol["total_accelerator_hours_limit"] = args.hours
-    problems = validate_structure(protocol, strict=True)
+    # resolve first (it pins generator version, manifest hashes and adapter
+    # commits), then require the resolved document to be placeholder-free
+    resolved = resolve(protocol, base_dir=Path.cwd(), device=args.device)
+    problems = validate_structure(resolved, strict=True)
     if problems:
         _die("; ".join(problems))
-    resolved = resolve(protocol, base_dir=Path.cwd(), device=args.device)
     resolved["study_id"] = args.study
     study_dir = Path(args.studies_dir) / args.study
     study_dir.mkdir(parents=True, exist_ok=True)

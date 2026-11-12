@@ -55,6 +55,19 @@ ALLOWED_FIELDS = {
     "notes",
 }
 
+#: fields produced by `resolve`; accepted when validating a resolved document
+DERIVED_FIELDS = {
+    "protocol_id",
+    "protocol_sha256",
+    "heldout_sha256",
+    "capability_matrix",
+    "job_matrix",
+    "expanded_job_count",
+    "worst_case_budget",
+    "environment",
+    "resolved_by",
+}
+
 PLACEHOLDERS = {"must-pin-before-freeze", "must-resolve-before-freeze", "must-resolve-per-model", ""}
 
 
@@ -72,7 +85,7 @@ def load_protocol(path: str | Path) -> dict:
 
 def validate_structure(protocol: dict, *, strict: bool = True) -> list[str]:
     problems: list[str] = []
-    unknown = set(protocol) - ALLOWED_FIELDS
+    unknown = set(protocol) - ALLOWED_FIELDS - DERIVED_FIELDS
     if unknown:
         problems.append(f"unknown fields: {sorted(unknown)}")
     missing = ALLOWED_FIELDS - {"notes", "protocol_id", "study_id", "evaluation_cells"} - set(protocol)

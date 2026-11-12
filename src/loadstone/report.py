@@ -205,6 +205,39 @@ def write_report(study_dir: Path, resolved: dict, jobs: list[dict]) -> str:
         )
         lines.append(row)
 
+    stages = {s.get("stage") for s in jobs}
+    lines += ["", "Comparison notes", "----------------"]
+    if "smoke" in stages:
+        lines.append("* Every job in this study ran the smoke allocation (20 updates). These are")
+        lines.append("  plumbing results: accuracies near 1/64 are expected and are NOT a ranking.")
+    lines.append(f"* Regime: {resolved['comparison_regime']}. Sizes were chosen by a frozen")
+    lines.append("  parameter-count search, not by accuracy; each job records its own width/depth.")
+    b0 = next((s for s in jobs if s["model_id"] == "B0" and s.get("final_validation")), None)
+    t0 = next((s for s in jobs if s["model_id"] == "T0" and s.get("final_validation")), None)
+    if b0 and t0 and b0["seed"] == t0["seed"]:
+        same = abs(
+            b0["final_validation"]["cell_macro_query_accuracy"]
+            - t0["final_validation"]["cell_macro_query_accuracy"]
+        ) < 1e-12 and b0["size"]["params"] == t0["size"]["params"]
+        if same:
+            lines.append("* B0 and T0 built identically on this backbone (same parameter count and")
+            lines.append("  identical losses). B0-T0 is a plumbing check, not a scientific contrast;")
+            lines.append("  the relevant contrasts are B1/B2/B3 against B0.")
+    learning = study_dir / "gates-learning.json"
+    if learning.exists():
+        try:
+            doc = json.loads(learning.read_text(encoding="utf-8"))
+            lines.append(
+                f"* Learning-plumbing gate (same-16-example overfit, not capability): "
+                f"{'PASS' if doc.get('all_passed') else 'FAIL'} "
+                + ", ".join(
+                    f"{r['model_id']}={r['best_accuracy_on_micro']:.2f}@lr{r['best_learning_rate']:g}"
+                    for r in doc.get("rows", [])
+                )
+            )
+        except Exception:
+            pass
+
     lines += ["", "Coverage and failures", "---------------------"]
     for s in jobs:
         fv = s.get("final_validation") or {}

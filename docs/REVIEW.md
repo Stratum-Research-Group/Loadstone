@@ -22,10 +22,11 @@ comparison design rather than the task design:
    closest baseline-grid configuration for B1 was 917,280 parameters, 8.3 %
    below the 1 M target against a ±5 % band. Left as-is, the
    `parameter_matched` regime would have silently become a mismatch study.
-3. **Learning rate interacts strongly with branch structure.** In a 500-update
-   overfit check, B1 reaches 89 % at lr 1e-3 and 97 % at lr 3e-3, while B3
-   reaches 98 % at 1e-3 and falls to 59 % at 3e-3. Any protocol that screens one
-   shared rate would report an optimisation artefact as an architectural
+3. **Learning rate interacts strongly with branch structure.** In the 500-update
+   overfit gate every model reaches 100 % on the fixed micro-dataset at lr 1e-4
+   and 3e-4, but at 1e-3 B1 stalls at 89 % and B3 at 98 % while B0/B2/T0 stay at
+   100 %. The failure is an optimisation artefact of one rate, and any protocol
+   that screened a single shared rate would have reported it as an architectural
    difference.
 
 ## Where the spec is precise enough to implement without guessing
@@ -51,15 +52,16 @@ comparison design rather than the task design:
 | 6 | memory mechanism | none specified | chunkwise linear attention (fast-weight state) with a learned residual scale initialised at 0.1; the scale was added after a measured learning-plumbing failure and is recorded in the effective config | `models/blocks.py::LinearMemory` |
 | 7 | "The default cumulative study budget is unset, which blocks launch" | how a user sets it | `freeze` refuses with an unset limit; `smoke`/`run` require an explicit confirmation and an approval record whose protocol hash must match | `protocol.py::freeze`, `cli.py` |
 | 8 | test evaluation after selection | when test is scored | only in the `confirmation` stage, after validation-based checkpoint selection; smoke never touches test and reports `n/a` | `runner.py::run_job` |
-| 9 | Gate 2 "at least 95 % primary accuracy" | at which learning rate | the gate sweeps the protocol's screening rates and passes if any reaches 95 %, recording which | `gates.py::overfit_gate` |
+| 9 | Gate 2 "at least 95 % primary accuracy" | at which learning rate | the gate sweeps all three screening rates and passes if any reaches 95 %, recording which. All five models pass (100 % at 1e-4 and 3e-4; B1 89 % and B3 98 % at 1e-3) | `gates.py::overfit_gate` |
 | 10 | validation/test set sizes | how much is scored per cell | 512 per cell for confirmation, and the actual number is written into the resolved limits; the smoke study used 64 and says so | `protocols/local-limits.json`, `runner.py::Limits` |
 
 ## Findings and risks, in order of how much they could mislead
 
-1. **Learning-rate × branch interaction** (measured, above). Per-model screening
-   is already required by the spec; the extra consequence is that ablation claims
-   must be made at each model's selected rate, and the spread across rates must
-   be reported rather than averaged away.
+1. **Learning-rate × branch interaction** (measured, above: B1 89 % and B3 98 %
+   at 1e-3 versus 100 % at 1e-4/3e-4). Per-model screening is already required by
+   the spec; the extra consequence is that ablation claims must be made at each
+   model's selected rate, and the spread across rates must be reported rather
+   than averaged away.
 2. **Three seeds are a pilot, not a claim.** Evaluation noise per cell is small
    (512 examples × K queries), but training-seed spread dominates. A 95 %
    t-interval on three seeds is very wide. Recommendation: five seeds for

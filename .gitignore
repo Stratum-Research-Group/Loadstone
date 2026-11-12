@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Generated artifacts: datasets and studies are reproducible, not source
+data/
+studies/
+gates-learning.json
+
+# Local scratch
+*.tmp

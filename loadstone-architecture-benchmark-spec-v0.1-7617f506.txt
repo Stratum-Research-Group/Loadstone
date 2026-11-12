@@ -1,0 +1,547 @@
+# Loadstone: architecture benchmark app and experiment specification
+
+Version: 0.1 proposed implementation contract  
+Date: 9 November 2026  
+Delivery: standalone text specification, not an experiment result
+
+## 1. Purpose and decisions
+
+Build a standalone, local-first app for comparing trainable sequence-model architectures. No particular model, repository or architecture family is required. Keep all project-specific integration instructions in separate adapter protocols.
+
+The primary question is:
+
+> Under controlled training and evaluation conditions, does a design learn more accurately, retain information longer, or reach the same quality using less compute than simpler alternatives?
+
+Start with controlled multi-query associative recall (MQAR). Then add state tracking, graded algorithmic tasks and a small real-text comparison. Synthetic tasks are legitimate architecture experiments. They isolate mechanisms; real text checks whether gains survive outside those mechanisms.
+
+This document specifies the protocol before any full run. All numerical settings below are **proposed defaults**, not claims that they are optimal, fit particular hardware, or have been approved for spending. Implementing the app does not authorize paid compute, downloads, training, or repository changes. No experiments were run to create this document.
+
+### Deliverable boundaries
+
+The MVP must provide:
+
+- Reproducible datasets, independent reference solvers and tested scorers.
+- Architecture adapters with explicit capabilities and state ownership.
+- Controlled training, evaluation, ablations and budget enforcement.
+- Local experiment queue, progress, cancellation, recovery and reports.
+- Complete manifests and exportable evidence behind every chart.
+
+Do not include a model marketplace, agent framework, cloud fleet manager, hosted leaderboard, automatic purchasing, automatic hyperparameter search beyond the frozen grid, or training on benchmark test answers. Do not require HLE or a broadly trained language model to validate the MVP.
+
+## 2. Model-independent integration boundary
+
+The app owns task definitions, data splits, solvers, scorers, budget logic and reporting. Model integrations live in independent adapters. The app must work with a conventional baseline even when no experimental architecture is installed.
+
+An adapter may accept symbolic inputs, byte sequences, token sequences or continuous latents. Declare the actual representation. Never label a patch-latent entry point a raw-byte API or assume a training script is a validated likelihood interface.
+
+Project benchmark scripts can be useful porting material, but do not make them the app's source of truth. Compare every ported generator against independent fixtures. Existing source code, a documented feature or a configuration flag is not evidence that the capability passes the app's gates.
+
+A small loop count is not a proven reasoning-off ablation. Component-off settings require a tested identity bypass. Each separate project protocol must pin its source commit, map concrete entry points and establish readiness without changing the general suite rules.
+
+## 3. Architecture and app workflow
+
+Use separate packages or modules for:
+
+1. **Dataset registry:** generator versions, corpus manifests, canonical examples, splits and licensing notes.
+2. **Model registry:** adapter factories and capability declarations.
+3. **Runner:** training, evaluation, telemetry, cancellation and checkpointing.
+4. **Protocol registry:** immutable resolved experiments and comparison groups.
+5. **Scoring:** pure functions, reference solvers and scorer fixtures.
+6. **Store:** local run metadata plus append-only artifacts. A local database is suitable for indexing; files remain exportable without it.
+7. **UI and command interface:** both invoke the same runner and validation logic.
+8. **Reports:** deterministic tables and charts from stored measurements.
+
+### User workflow
+
+`Choose suite -> choose adapters -> resolve protocol -> validate -> inspect cost ceiling -> approve launch -> run -> compare -> export`
+
+A run page must show suite version, commits, seeds, comparison regime, actual budget consumed, remaining hard limits, gate results and current status. Show unsupported cells as unsupported, never as a zero score. Do not present smoke results as confirmed architecture rankings.
+
+Before launch, show the complete expanded job matrix and maximum cumulative allocation. A five-model by three-seed by three-learning-rate matrix is 45 screening jobs, not one run. Task families and size tiers multiply it further. Require a deliberate selection of families; do not silently launch every suite.
+
+Start with a single active worker. A backend may later provide more workers, but concurrent workers must share cumulative resource reservations and cannot oversubscribe one device by accident. Localhost is the default UI binding. Do not execute shell commands embedded in dataset files or imported result bundles.
+
+## 4. Model adapter contract
+
+The following is a contract to implement, not an existing model API or command:
+
+```text
+metadata() -> adapter ID, adapter version, source commit, effective model config,
+              trainable/total parameter counts, capabilities, state schema
+build(config, initialization_seed) -> model
+encode(example, representation_config) -> model inputs + target masks
+train_step(batch, optimizer_state) -> losses + counters
+predict(batch, state, evaluation_config) -> predictions + new state + telemetry
+score_bytes(context, targets, state) -> summed causal NLL in nats + byte count
+reset_state(scope) -> fresh state
+save_checkpoint(path) / load_checkpoint(path)
+```
+
+Only advertise implemented methods. A model can be useful for symbolic tasks without supporting byte likelihood or text generation.
+
+### Capability declaration
+
+Declare booleans or named modes for symbolic classification, causal byte likelihood, generated answers, streaming continuation, explicit reset, fast-memory updates, fixed-loop execution, adaptive halting, per-item compute telemetry, checkpoint/resume and vision. Include maximum supported input sizes and representations, without silently truncating.
+
+For each requested cell, preflight must return `SUPPORTED`, `UNSUPPORTED` with reason, or `GATE_FAILED` with evidence. No substitute task, synthetic score, hidden tokenizer, prefix-only crop, or fallback backend is allowed without changing the manifest.
+
+### State ownership
+
+Return an opaque structured state object owned by one trial. It includes all applicable KV caches, recurrent/SSD state, convolution histories, fast weights, memory momentum, adaptive-reasoning histories, decoder state and patching state. If a component cannot expose its state, a fresh isolated instance or documented reset path must demonstrate equivalent isolation.
+
+Base learned parameters stay frozen during evaluation. Explicit test-time fast-memory updates may operate on the observed input within a trial, but never on gold labels, future inputs or another trial. Distinguish these fast updates from evaluation-time gradient training. If an implementation needs autograd to compute an authorized memory update, scope it narrowly and prove base parameters remain unchanged.
+
+## 5. Models, ablations and comparison regimes
+
+Use these five starting configurations:
+
+| ID | Model |
+| --- | --- |
+| B0 | Candidate backbone with optional memory and latent reasoning bypassed |
+| B1 | Same backbone with memory active, reasoning bypassed |
+| B2 | Same backbone with reasoning active, memory bypassed |
+| B3 | Same backbone with both active |
+| T0 | Causal Transformer baseline with the same task interface |
+
+The candidate backbone still includes its other declared components. Name it according to the effective layout, not an assumed family. If a candidate has no optional memory or reasoning mechanism, those ablation cells are unsupported rather than fabricated. Include exact layer layout, attention window and auxiliary heads in the manifest.
+
+Train each architecture ablation independently from initialization. Disabling a mechanism only at inference in a checkpoint trained to use it is a separate lesion experiment, not a replacement for architectural ablation. Shared seeds align data order and initialization procedures; they do not make different tensor shapes identical.
+
+For symbolic suites, use the same discrete alphabet, embedding policy and output-head design across models. For byte modelling, count every byte encoder, entropy estimator, patcher, decoder and auxiliary head. Keep task-head/front-end dimensions fixed in structural ablations. If a shared embedding dominates parameter counts, report it separately.
+
+### Three complementary comparisons
+
+1. **Structural ablation:** keep common backbone dimensions fixed; report the real parameter/compute differences caused by added components. This isolates the change without pretending it is free.
+2. **Parameter matched:** target 1 million trainable parameters for the first symbolic tier and 5 million for the first byte tier, within +/-5%. Freeze an integer width/depth search before training. If the architecture cannot fit the band, show the mismatch and do not label it matched. Do not pad a model with unused parameters. Report both total and active parameters.
+3. **Compute matched:** use the same measured accelerator-training-time ceiling on the same device, plus a separately reported FLOP estimate when available. Fix timing boundaries, precision and batch policy. Wall-clock matching is hardware-specific and is not automatically FLOP matching. To claim FLOP matching, include a validated estimator for every component and use a common FLOP ceiling with no more than 5% final-step overshoot, reporting the exact overshoot.
+
+Also report compute-to-quality curves. Do not collapse quality, training cost, latency and memory into one unexplained score.
+
+### Baseline and size-search contract
+
+T0 is a decoder-only, pre-RMSNorm Transformer with causal full self-attention, rotary positions, SwiGLU feed-forward blocks, residual connections, no dropout and no extra memory. Use four attention heads where width permits, head dimension even, rotary dimensions equal to the head dimension, and a feed-forward hidden width rounded to the next multiple of 8 at approximately 8/3 times model width. Use untied input/output embeddings and include both in the count. No pretrained weights or learned absolute-position rows. Symbolic readouts follow each task's rules; sequence-to-structured-output heads read a final summary position after the complete input. The byte model scores each byte causally under the declared block policy.
+
+For T0, search depth in {1,2,3,4,6,8} and model width in {32,48,64,96,128,160,192,256,320,384,512}, respecting head divisibility. Choose the valid model closest to the target count; tie-break by smaller width then smaller depth. This is a parameter-count search, not an accuracy search. A candidate adapter must export an equally finite valid size-search space and deterministic tie-break before training. If it cannot, the matched-parameter study is not ready to freeze.
+
+Validate at 10%, 25%, 50%, 75% and 100% of the scientific training allocation. Select by the declared validation primary endpoint, tie-breaking toward the earlier checkpoint. Retain the best-validation checkpoint, latest resumable checkpoint and final checkpoint, deduplicating when these coincide. Keep lightweight metrics for every evaluation. Test the selected and final checkpoints only after training and selection finish; do not evaluate the test set at every training checkpoint.
+
+All models receive equal validation-only tuning opportunities and the same split manifest. A Transformer with full attention is the main baseline. A windowed Transformer with the same window as the candidate is an optional additional baseline, explicitly labeled. Beating a baseline forced to forget the answer is narrower evidence than beating full attention.
+
+## 6. Dataset and leakage rules
+
+Every example has a suite/version ID, split, cell ID, example ID, content hash, generator seed or corpus offsets, inputs and private scoring targets. Store train/validation/test artifact hashes before full training.
+
+Use independent random streams for model initialization, training order, training generation, validation generation, test generation and inference sampling. Set Python, NumPy and framework seeds, and device RNG states where relevant. Record deterministic-kernel settings; disclose unavoidable nondeterminism.
+
+Independently sampled same-distribution validation is valid. Out-of-distribution evaluation is an additional claim, not a requirement for validation to count.
+
+For synthetic suites, materialize validation/test sets before training and lock them. Training examples are generated deterministically by example index. Reject exact held-out input duplicates from training using canonical hashes. For tasks with small finite spaces, count unique inputs first and reduce the requested held-out set deterministically if necessary; never invent unique examples that cannot exist. Near-duplicate auditing is informative, not a guarantee of no statistical overlap.
+
+Hyperparameters, checkpoints and model choices use validation only. The test evaluator does not provide targets to the training process. A completed test run can inform a new study, but that revision gets a new protocol ID and fresh held-out synthetic examples. Do not rename repeated test tuning as validation.
+
+## 7. Suite A: controlled MQAR, first implementation target
+
+### Variant identity
+
+Implement `mqar_controlled_v1`, inspired by Zoology. This is a controlled app variant, not a claim to reproduce Zoology's exact reported scores. A future `zoology_reproduction` suite must pin upstream code and its full settings separately.
+
+### Exact task
+
+Use a 256-symbol alphabet: PAD=0, QUERY=1, END=2, 64 keys with IDs 3..66, 64 values with IDs 67..130, and distractors with IDs 131..255. Symbols are discrete IDs, not UTF-8 bytes or patches.
+
+For each example:
+
+1. Sample K unique keys and K unique values; randomly pair them.
+2. Uniformly choose K distinct even start positions in the first half of a length-L sequence. Place each key followed by its value. Require `2*K <= L/2`.
+3. Fill other positions with independently sampled distractors, not additional key/value pairs.
+4. Reserve the final 2*K positions for K distinct query keys. Put QUERY then the key for each query. Score the model's value-class prediction at the query-key position. Never insert the gold value in the input.
+5. Use a causal mask. Loss is mean cross-entropy over scored query positions only, with no prefix-value supervision in this variant.
+
+Provide all models the same supervised task interface. A task head over the 64 possible values gives chance accuracy 1/64 by construction. An oracle map establishes 100% reference accuracy. This head is not a general language-model vocabulary benchmark.
+
+### Starter grid
+
+- L in `{128, 256, 512}`; K in `{4, 8, 16}`: nine cells.
+- Training samples uniformly choose one of these nine cells.
+- Validation and test: 512 independently drawn unique examples per cell and split, scored as K queries per example.
+- Separate length-OOD cells: L in `{1024, 2048}`, K in `{4, 8, 16}`. Generate only after confirming the encoding and positional scheme support these lengths without new untrained lookup rows. Record measured key-to-query distances.
+- Optional later density sweep changes K independently of L, under a new suite manifest.
+
+Report macro-average query accuracy across the nine in-distribution cells, every cell's query accuracy, all-queries-correct sequence accuracy and cross-entropy. Do not average away a sharp failure at the longest distance. Report the OOD table separately.
+
+Hypothesis: memory should help retrieve associations across distractions. B0/B1/B2/B3 determine whether it helps and whether reasoning adds anything on this task. No benefit is a valid result. The task does not establish broad knowledge or general reasoning.
+
+## 8. Suite B: state tracking and graded computation
+
+Use independent reference solvers, task-specific heads and separate trained models per family. These are proposed controlled variants, not official published leaderboard reproductions.
+
+### B1. S5 permutation composition
+
+S5 means the symmetric group on five elements here, not the similarly named SSM architecture.
+
+- Each step supplies a uniformly sampled permutation of `{0,1,2,3,4}`.
+- Begin with identity. Apply permutations in sequence: `result[i] = next_perm[result[i]]`.
+- The target is the final five-element permutation. Use five 5-way classification outputs; reject invalid permutations in the strict metric.
+- Train/validate/test on step counts `{2,4,8,16}`. Use an explicit start/end marker and a causal final-summary readout; record the serialization.
+- OOD step counts `{32,64}`. Do not create new untrained step-count embeddings for these cases.
+- Use 512 unique validation and 512 unique test sequences per cell where the finite space allows it.
+
+Report exact permutation accuracy, element accuracy and invalid-permutation rate. Uniform complete-permutation guessing has exact accuracy 1/120; independent per-element guesses are a different baseline. Include identity and deliberately noncommuting solver fixtures to catch reversed composition.
+
+### B2. Rule110 evolution
+
+- Binary ring of width 32 with wrap-around boundaries.
+- Initial cells independently Bernoulli(0.5).
+- Neighborhood table for indices `000..111` is `[0,1,1,1,0,1,1,0]`.
+- Input includes initial state and requested rollout depth. Target is the state after that many updates, not a rollout supplied in the input.
+- Training depths `{1,2,4,8}`; OOD depths `{12,16}`.
+- Encode depth as fixed-width binary with five bits for all splits, rather than a learned table with unseen OOD rows. Still label unseen-depth generalization as such; the encoding alone does not prove it.
+- Validation/test: 512 unique initial-state/depth pairs per cell and split.
+
+Report exact whole-state accuracy, per-cell accuracy, positive-class frequency and majority/constant baselines. Exact-state accuracy cannot be inferred from mean bit accuracy. Keep width generalization as a separate future suite, not a silent change to this one.
+
+### B3. Decimal addition
+
+- Two nonnegative integers with equal digit count d, no leading zeros except zero at d=1.
+- Input format `a+b=`; target is the exact canonical decimal sum followed by END. Output only the answer, no rationale.
+- Train on d in `{1,2,3,4}`; OOD d in `{6,8}`. Use an algorithmic position scheme or explicitly disclose position limitations.
+- Draw ordinary examples uniformly over valid operands. Also create a separate stress split whose oracle trace has at least d-1 consecutive carry transitions. Generate by rejection sampling, with an explicit maximum of 100,000 attempts per cell; if insufficient unique examples exist, enumerate where feasible and report the smaller available count. This stress split is not the ordinary distribution.
+- Per ordinary cell: up to 512 unique validation and 512 unique test inputs. At d=1 the ordered input space has only 100 pairs: reserve 20 validation, 20 test and the remaining 60 for training using a fixed seeded partition. Apply the same finite-space rule to the stress split. Construct the union of ordinary and stress held-out inputs before training and exclude that union from training. For d=1, where the stress condition includes the entire ordinary space, reuse the same 60/20/20 input partition. At other widths, construct one joint reservation before emitting either evaluation view. Stress and ordinary evaluation may share inputs only if recorded, with uncertainty never treating those rows as independent.
+- Greedy autoregressive decoding, temperature 0, maximum 16 generated symbols including END. Invalid syntax, missing END, extra text, timeout and truncation count as failures. Keep failure categories.
+
+Report exact sum accuracy, carry-stress accuracy and per-digit accuracy as a secondary diagnostic. A symbolic oracle is a correctness ceiling, not a competing learned model.
+
+### Fixed versus adaptive reasoning
+
+For each reasoning-enabled trained checkpoint, evaluate fixed loop budgets `{1,2,4,8}` and adaptive halting capped at 8, only where the adapter proves it can enforce them. Freeze adaptive thresholds from validation, never test. Keep base weights identical across this inference sweep.
+
+Also compare separately trained fixed-loop and adaptive models if making a claim about the training method. Report their extra training cost. A checkpoint trained only at one loop budget may not work at another; show that limitation rather than interpreting it as a universal ceiling.
+
+Measure quality versus actual work. Report mean/p50/p95 loops, halt-at-cap rate and work by difficulty. A correlation between difficulty and loop count is a diagnostic, not proof of useful reasoning. Require an accuracy/efficiency gain relative to fixed-loop alternatives before claiming adaptive computation earns its cost.
+
+## 9. Suite C: byte-level modelling on real text
+
+Use raw enwik8, not text8, stripped text or an enwik9 substitute. The corpus maintainer lists enwik8 as 100,000,000 bytes of UTF-8 XML. Record the downloaded archive hash, decompressed SHA-256, size, origin URL, retrieval date and applicable data terms before use. Do not bundle the corpus into an app distribution without checking redistribution rights.
+
+### Frozen split convention for this app
+
+Byte offsets are zero-based, half-open:
+
+- Train: `[0, 90,000,000)`.
+- Validation: `[90,000,000, 95,000,000)`.
+- Test: `[95,000,000, 100,000,000)`.
+
+These are chosen benchmark split rules. Preserve raw bytes: no newline normalization, Unicode repair, XML stripping or document reordering. Never train the tokenizer or patcher on validation/test bytes. Audit repeated train/test substrings and disclose that contiguous corpus splitting does not eliminate duplicated articles or passages.
+
+### Likelihood and evaluation schedule
+
+- Shared external context budget: 1,024 raw bytes per independent block.
+- Reset every model's state at each block boundary, including patcher and fast-memory state. Use a learned start symbol or documented fixed start state for the first byte of each block.
+- Process contiguous blocks beginning exactly at the split start; score every byte once, including the first byte from start state. The final partial block is scored and byte-weighted correctly.
+- Do not let a held-out block attend to preceding training or validation bytes. There is no cross-block carried memory in the primary suite.
+- Causal teacher forcing is allowed only when each target byte's prediction has access to earlier bytes, not that target or future bytes. Patch boundary detection, pooling, decoder conditioning and entropy estimation must all satisfy this.
+
+Primary metric:
+
+`bits_per_byte = sum(causal negative log likelihood in nats) / (number of scored bytes * ln(2))`
+
+Use the byte NLL alone for this metric. Ponder loss, JEPA loss and other auxiliary terms are training diagnostics, not held-out bits per byte.
+
+Use a byte Transformer baseline for the MVP. For a future tokenized baseline, do not divide token perplexity by an assumed bytes-per-token factor. It needs a tested likelihood-to-byte accounting contract, exact reconstruction, boundary policy and all tokenizer costs. Mark it unsupported until then.
+
+Report byte NLL, byte accuracy as secondary, raw bytes/sec, training bytes processed, elapsed time, estimated FLOPs, peak memory, patch-length distribution and total patcher/entropy/decoder work. Byte count, token count, symbol count and patch count are separate fields.
+
+A continuous-stream suite may be added later with a frozen reset schedule and equal effective-history policy. Do not mix it with block-reset results.
+
+## 10. Training recipe and frozen numerical controls
+
+The starter recipe is designed to be explicit, not assumed optimal. Any change after test inspection creates a new protocol version.
+
+### Shared optimization defaults
+
+- AdamW, beta1=0.9, beta2=0.95, epsilon=1e-8, weight decay=0.01.
+- Global gradient norm clip=1.0, measured before clipping and logged.
+- Learning-rate screening grid `{0.0001, 0.0003, 0.001}` per model/task/regime.
+- Linear warm-up for the first 5% of the allocated training steps or active training-time budget; cosine decay over the remaining declared budget. Time-matched schedules use the same elapsed-budget fraction, not a secretly extended step schedule.
+- Training seeds `{17,29,43}` for screening and confirmation. Validation/test example seeds are separate and identical across compared models.
+- Equal screening allocation per candidate. Select the learning rate by mean validation primary metric across the three seeds, with lower measured cost as the tie-breaker. Carry all screening costs into the study total.
+- Confirm the selected rate from fresh initialization using the same three training seeds and full allocation. Report seed dependence honestly; three seeds are a starting estimate, not a guarantee of precision.
+- No early stopping in the primary fixed-budget comparison. Save validation checkpoints at fixed budget fractions and select one using validation only. Report the final-budget checkpoint as well as the selected checkpoint.
+
+### Batch and loss units
+
+- Symbolic suites: effective batch 32 examples per update. For MQAR, average loss per query then per example. For S5/Rule110, average per output position then per example. Sample training difficulty cells uniformly.
+- Addition: effective batch 32 examples, loss averaged over target answer symbols including END, then over examples. Prompt positions are excluded.
+- Byte suite: effective batch 8 blocks of 1,024 target bytes, or 8,192 target bytes per update. Sample training block starts uniformly inside the training interval with replacement; no split crossing.
+- If memory requires gradient accumulation, preserve effective batch and record microbatch size. Freeze each model's microbatch after preflight. A full-context Transformer must not receive a shorter sequence because it is slower.
+- Start in float32 for correctness gates. A production study can use float32 or bfloat16, but must freeze one declared precision policy for each comparison, verify numerical gates at that precision and record hardware support. Do not mix undocumented precision advantages.
+
+Use no distillation in the MVP. Random-teacher/student loss reduction establishes plumbing, not transferred knowledge. Any later distillation study must identify a real trained teacher, its checkpoint, outputs, exposure risks and total teacher inference cost.
+
+### Auxiliary-loss policy
+
+For B0/B1/B2/B3, JEPA is disabled in the primary component comparison so it does not confound memory/reasoning. An auxiliary-loss study is separate. Reasoning-enabled models may use mean normalized ponder penalty with proposed coefficient 0.01; record the exact formula and tensor reduction. Test that changing batchmates does not change an item's reported per-item penalty. Reasoning-off models have no ponder term. No hidden regularizers or teacher labels.
+
+### Proposed per-job allocations
+
+| Stage | Symbolic job | Byte job | Meaning |
+| --- | --- | --- | --- |
+| Smoke | 20 updates, 2 minutes maximum | 20 updates, 2 minutes maximum | Plumbing only |
+| LR screen | 1,000 updates, 15 minutes maximum | 1,000 updates, 30 minutes maximum | Validation tuning |
+| Confirmation | 10,000 updates, 60 minutes maximum | 10,000 updates, 120 minutes maximum | First bounded study |
+
+For parameter-matched/data-controlled runs, the update count is the scientific allocation; the time is a safety limit. A job stopped by its time cap is censored, not a completed equal-data result. For time-matched runs, the time is the scientific allocation; the update count is a safety limit. If it stops first, mark that comparison censored too. Do not claim all runs reached convergence. Extending the ceilings is a new approved study, not an automatic retry.
+
+## 11. Compute, latency and resource accounting
+
+Count forward/backward passes, optimizer updates, attention, recurrent updates, learned fast-memory work, entropy estimation, patching, decoder, heads, auxiliary losses, adaptive halting and every executed loop. Parameter count alone is not compute.
+
+Record separately:
+
+- Conceptual per-item loop count and actual batch/kernel work. If a whole batch runs until its slowest item halts, report that executed cost rather than summing only logical item loops.
+- Training device-active elapsed time including forward/backward/optimizer and on-device preprocessing; validation/checkpoint time separately; complete end-to-end wall time including data loading, compilation and all overhead.
+- FLOP estimate method/version and coverage. Missing memory-update or patcher FLOPs must be marked incomplete, not zero. Separate estimated FLOPs from profiler-measured quantities.
+- Peak allocated/reserved accelerator memory, peak process RAM, checkpoint/storage bytes and telemetry sampling interval. Include optimizer and all fast state.
+- Raw data processed, optimizer updates, examples, supervised targets, bytes, symbols, patches, generated tokens and recomputed prefixes where applicable.
+- Inference batch=1 latency p50/p95 and separate batched throughput. After 10 warm-up trials, time 100 fixed validation trials with device synchronization. Reset per trial. Report compilation/cold-start time separately. Include encoding, patching, state updates and decoding in end-to-end latency.
+
+Generation limits count all output passes and retries, not only the final visible answer. No retries are enabled in the primary protocol. If prefix recomputation is used, count its work every time. Internal latent loops do not count as output tokens, but they do count as compute.
+
+### Safety limits and explicit approval
+
+Proposed defaults: one worker; accelerator-memory cap 80% of detected physical memory; process-RAM cap 50% of detected RAM; 10 GiB maximum new artifacts per study; 30 seconds per symbolic evaluation example; 120 seconds per 1,024-byte likelihood block; at most three retained full checkpoints per job; no automatic paid backend. Reserve enough space for an atomic final checkpoint and mark inability to reserve as a preflight failure.
+
+Enforce hard timeouts with a supervisor capable of terminating a hung worker. A framework allocator setting alone is not a complete memory guard. Sample resource use and stop the worker if it exceeds its cap; record peak sampling limitations. An OOM may occur before a sampled guard acts, so still handle OOM explicitly.
+
+Before a full study, expand the selected matrix into a worst-case total. The default cumulative study budget is **unset**, which blocks launch. The user must set maximum total accelerator-hours, elapsed deadline, storage and, for metered resources, maximum currency amount. Use observed provider rates only; if unavailable, show cost as unknown and prohibit paid launch. Every screening job, failed attempt, validation pass and confirmation is included in cumulative accounting. Stop before reserving a job whose allocation exceeds the remaining approved total.
+
+Do not assume the 1M/5M models or these batch sizes fit a particular GPU. Run resource preflight on the selected machine. Failure leads to an explicit smaller protocol revision, not silent model or context shrinkage.
+
+## 12. Correctness and launch gates
+
+### Gate 0: data, solver and scorer unit tests
+
+All must pass before any meaningful training:
+
+- Every generator is deterministic by seed/index, validates its parameter range and emits targets independently verified by an oracle.
+- MQAR never exposes the query's gold value at or after its query position; repeated distractors cannot be interpreted as new associations. Test exact mask positions and all query distances.
+- S5 composition uses known noncommuting examples and identity/inverse checks; every target is a valid permutation.
+- Rule110 tests all eight neighborhoods, wrap-around edge cells and multiple-step examples against a second straightforward solver.
+- Addition tests `0+0`, `9+1`, `99+1`, maximum-width answers, long carry chains and invalid/generated overflow cases.
+- Gold predictions score 100%; deliberately wrong predictions score 0% under exact accuracy; partial outputs affect only documented secondary metrics.
+- Byte scorer: a uniform distribution over 256 bytes gives exactly 8 bits/byte within numeric tolerance. Hand-computed two-byte examples verify nats-to-bits conversion, target shifts, masks, final partial blocks and weighted aggregation.
+- Strict answer parser rejects extra text, wrong length, missing END and truncation. No last-number extraction or hidden answer repair.
+- Split hashes and held-out duplicate checks pass. Empty target masks, empty splits, impossible K/length cells and unsupported lengths fail loudly.
+
+### Gate 1: adapter mechanics
+
+- Future-input perturbation must not change earlier causal logits, including through patch boundaries or pooled latents.
+- Fresh-state versus reset-state output agrees; running example B after A with reset agrees with running B alone. Include all fast-memory and reasoning histories.
+- Where supported, full-prefix, chunked and incremental outputs agree at the same logical position. Test early ACT halting, later continuation, variable batchmates, padding and arbitrary chunk boundaries.
+- Suggested initial tolerances: `atol=1e-5, rtol=1e-4` for float32 and `atol=1e-2, rtol=1e-2` for bfloat16. Compare logits as well as exact predictions. Freeze measured justified tolerances before training; do not widen them after seeing a failure to make it pass.
+- Memory/reasoning bypasses really skip the component, remove its state updates and report zero executed work for it. A one-loop network is not identity.
+- Parameter counts match actual tensors; base learned parameters are unchanged by evaluation. Checkpoint reload preserves outputs and relevant state.
+- If streaming is unsupported, mark streaming cells unsupported. A validated recomputing path can still run non-streaming tasks, with all recomputation charged.
+
+### Gate 2: tiny validation run
+
+- Run the 20-update smoke allocation on one seed, one model at a time. Require finite losses/gradients, correct counter increments, valid artifacts, no budget overrun and a successful cancel/resume test.
+- Overfit one fixed micro-dataset of 16 examples for each symbolic family for at most 500 additional updates or 5 minutes. Require at least 95% primary accuracy on that same micro-dataset. This is a learning-plumbing gate, not held-out capability evidence.
+- For bytes, use a fixed repeated 4 KiB training-only fixture, at most 500 updates or 5 minutes, and require a reduction of at least 0.1 bits/byte from its initial loss. This tests the learning path, not language modelling quality.
+- If a model fails the bounded learning check, keep the failure visible and investigate before interpreting a full-run loss. It may be a training-setting failure rather than architectural impossibility.
+
+### Gate 3: freeze and approve
+
+Before screening/full runs, write the resolved protocol, hashes, exact job matrix, device/precision, LR choices, seeds, metrics, stopping rules, selection policy, expected artifact sizes and cumulative budget. The user reviews the allocation. Freeze its hash. Any subsequent scientific change produces a new ID with a readable diff.
+
+No broad claims from a smoke pass. No full run while an applicable gate is failing. A suite can proceed while an unrelated unsupported modality stays unavailable.
+
+## 13. Run states, failures and recovery
+
+Use explicit states:
+
+`DRAFT -> VALIDATING -> READY_FOR_APPROVAL -> QUEUED -> RUNNING -> COMPLETED`
+
+Alternative terminal/intermediate states: `UNSUPPORTED`, `GATE_FAILED`, `PAUSED`, `CANCELLED`, `FAILED`, `BUDGET_EXHAUSTED`, `CENSORED`.
+
+A run is completed only if its prescribed train/evaluation allocation and required artifacts are complete. Distinguish run completion from an experiment supporting its hypothesis.
+
+Log every failure with stage, exception category, last successful batch, step/example ID, counters and last checkpoint. No automatic smaller-batch retry, context truncation, new seed, altered precision, skipped example or backend switch. Retry the same job only after a deliberate action and charge the failed attempt. Report evaluation coverage and failure counts; do not calculate a score over only successful outputs as if all were evaluated.
+
+Checkpoints include model and optimizer, scheduler, gradient scaler, all RNGs, data-stream cursor, training step, consumed budget, protocol/environment hashes and any state intentionally carried within the training unit. Save atomically with a checksum. Resuming requires matching hashes and a verified checkpoint. Pause at a safe boundary; log any discarded partial update and its cost.
+
+If exact replay is impossible, mark the continuation non-exact and retain it as a separate lineage. Never combine parts of incompatible runs into one purported seed. Resume does not reset time, spend or output caps.
+
+For generated answers, log raw output, parsed output, parser version, output limit, output length, finish reason, latency and error category. Use finish reasons such as END, length cap, timeout, cancellation, backend error and nonfinite logits. Unanswered, malformed and over-budget cases remain in the planned denominator as failures, with an accompanying coverage report.
+
+## 14. Immutable artifact contract
+
+Suggested run directory:
+
+```text
+study/<study_id>/
+  protocol.resolved.json
+  protocol.sha256
+  approval-and-limits.json
+  environment.json
+  dataset-manifest.json
+  gates.json
+  jobs/<job_id>/
+    model-effective-config.json
+    events.jsonl
+    training-metrics.jsonl
+    evaluation-predictions.jsonl
+    resource-metrics.jsonl
+    checkpoints/
+    summary.json
+  report.txt
+  tables/
+  charts/
+```
+
+The approval record is an app record of the user's actual launch confirmation, not an authorization generated by an imported config. Store no credentials, API keys or payment secrets in exports. Dataset targets may be exported in a deliberate private research bundle, but are never passed into model prompts or worker training inputs for a held-out run.
+
+Every measurement row includes study/job IDs, suite/cell/example ID where applicable, model/checkpoint hash, seed, split, step/budget position, measurement units and scorer version. Record source-tree dirty status and a patch hash, dependency lockfile, language/framework/runtime versions, driver/device details, operating system, precision and compilation/kernel settings.
+
+## 15. Statistics and interpretation
+
+Report every seed and cell, then mean and sample standard deviation across independent training seeds. Use paired seed differences where appropriate. For a 95% confidence interval on a three-seed mean, use the two-degree-of-freedom Student-t interval and label its limited precision. Do not treat thousands of query positions from one trained model as thousands of independent training runs.
+
+For optional evaluation uncertainty, resample whole examples, not correlated output positions; report it separately from seed variation. Byte-block bootstrap uncertainty is not a substitute for independent training seeds or corpus-domain diversity.
+
+Predeclare primary endpoints:
+
+- MQAR: in-distribution cell-macro query accuracy at the allocated budget.
+- S5: cell-macro exact permutation accuracy.
+- Rule110: cell-macro exact final-state accuracy.
+- Addition: cell-macro exact sum accuracy; carry-stress separate.
+- Bytes: full held-out bits per byte under the frozen reset policy.
+
+Proposed compute-to-quality thresholds: 95% MQAR query accuracy, 90% exact S5 accuracy, 90% exact Rule110 state accuracy, 90% ordinary addition accuracy and 2.0 bits/byte for enwik8. These are plotting targets, not expectations or pass/fail requirements. Report `not reached` if missed. Use checkpoints to bracket first threshold crossing; do not interpolate an unobserved successful model.
+
+A benefit claim must name its scope, effect size, uncertainty and cost. Example: "At this size and budget, B1 improved MQAR accuracy over B0 by X percentage points, costing Y more training time and Z more memory." Do not fill X/Y/Z until measured.
+
+Use Pareto plots for quality versus training cost, inference latency and memory. A single small result does not establish superiority at scale. A longer-context failure may reflect encoding, optimization, data distribution or state capacity. A pass does not prove unbounded algorithmic generalization.
+
+No universal intelligence score, architecture ceiling claim, theoretical complexity-class breakthrough, or "12B equivalent" label follows from this suite. Correlated loop counts, low auxiliary loss and random-teacher imitation are not substitutes for held-out performance.
+
+## 16. UI and reporting requirements
+
+The app must offer:
+
+- Protocol editor with proposed/frozen status and a readable diff on revision.
+- Capability matrix before launch, including unsupported and gate-failed cells.
+- Expanded job count, worst-case totals and remaining approved allocation.
+- Live training/validation curves, resource use, cancel and pause controls.
+- Filtered seed/cell tables, quality-versus-compute charts and reset-policy labels.
+- Side-by-side structural, parameter-matched and compute-matched views, never mixed silently.
+- Failure/coverage panel and artifact download for each number.
+- Plain-text report, JSON manifests, JSONL predictions and CSV summary exports.
+
+Report title and chart labels must identify model size, suite version, commit, data split, context unit, precision and matching regime. Charts must distinguish held-out results from train memorization, OOD from in-distribution and pilot from confirmation. Byte metrics must use the same byte denominator in every view.
+
+## 17. Proposed command interface
+
+These commands are **acceptance examples for the future app**, not existing repository commands. `loadstone` is the proposed executable name for this future app; no software with these commands exists yet.
+
+```sh
+loadstone validate --protocol protocols/mqar-v1.json --stage unit
+loadstone validate --protocol protocols/mqar-v1.json --stage adapter
+loadstone plan --protocol protocols/mqar-v1.json --expand-jobs
+loadstone smoke --protocol protocols/mqar-v1.json --limits local-smoke.json
+loadstone freeze --protocol protocols/mqar-v1.json
+loadstone run --frozen-protocol <hash> --approval <local-approval-record>
+loadstone pause --study <id>
+loadstone resume --study <id> --checkpoint <verified-checkpoint>
+loadstone report --study <id> --format txt,csv,json
+```
+
+The approval record must come from a real UI/CLI confirmation after the user sees the plan. A config containing `approved: true` is not enough. Planning, validation and report export must not start training implicitly. Smoke itself consumes resources and requires the local allocation confirmation; it cannot choose a metered backend silently.
+
+Minimum resolved protocol fields:
+
+```json
+{
+  "schema_version": "0.1",
+  "status": "proposed",
+  "suite": "mqar_controlled_v1",
+  "comparison_regime": "parameter_matched",
+  "model_ids": ["B0", "B1", "B2", "B3", "T0"],
+  "train_seeds": [17, 29, 43],
+  "validation_seed": 1001,
+  "test_seed": 2001,
+  "generator_version": "must-pin-before-freeze",
+  "dataset_manifest_sha256": "must-resolve-before-freeze",
+  "adapter_commits": "must-resolve-per-model",
+  "target_trainable_parameters": 1000000,
+  "parameter_tolerance_fraction": 0.05,
+  "learning_rates": [0.0001, 0.0003, 0.001],
+  "effective_batch_examples": 32,
+  "screen_updates": 1000,
+  "confirmation_updates": 10000,
+  "primary_metric": "id_cell_macro_query_accuracy",
+  "evaluation_state_policy": "reset_per_example",
+  "total_accelerator_hours_limit": null,
+  "total_currency_limit": null,
+  "paid_execution_allowed": false
+}
+```
+
+This is a field illustration, not a complete runnable configuration. The compiler must expand all required settings from this specification and reject missing hashes, size resolution, cell definitions, environment, caps or actual approval. JSON comments, unresolved placeholders and unknown fields fail validation.
+
+## 18. Implementation order and acceptance criteria
+
+### Milestone 1: trustworthy MQAR runner
+
+Implement the app-owned MQAR generator, oracle/scorer fixtures, T0 baseline and one candidate adapter; then the five model configurations. Deliver Gate 0/1 evidence, one bounded smoke result, correct cancellation/resume and a reproducible private report. No superiority claim is required for acceptance.
+
+### Milestone 2: first controlled study
+
+Expand and approve only the MQAR matrix. Freeze it, screen learning rates, run confirmations and export all seeds/cells/costs. Acceptance means comparable, auditable results, even if the candidate does not win or targets are not reached.
+
+### Milestone 3: reasoning and state suites
+
+Add S5, Rule110 and addition, including strict solvers, OOD encoding checks and actual ACT compute telemetry. Do not reuse one task's favorable checkpoint as an unreported cross-task tuning advantage.
+
+### Milestone 4: real-text learning
+
+Add the byte adapter and enwik8 only after causality and byte-likelihood gates pass. Compare with T0 using the frozen byte protocol. A byte wrapper existing in a repository is not completion of this milestone.
+
+### Later extensions
+
+Selective copying and induction tasks, additional recurrent baselines, model/data scaling sweeps, a pinned Zoology reproduction, continuous-stream evaluation and trained-model external benchmarks can follow as separately versioned suites.
+
+Humanity's Last Exam belongs to a later trained-checkpoint adapter, not the MVP. A text-only subset must be labeled text-only, and full multimodal evaluation needs a working vision path. Freeze the then-current official evaluation protocol and contamination policy rather than treating a synthetic-task checkpoint as HLE-ready.
+
+## 19. Sources and what they support
+
+These sources motivate task choices and measurement principles. The app contracts, split rules, grids, seeds, budgets and thresholds above are proposed design choices, not settings asserted to reproduce those papers.
+
+1. **Zoology: Measuring and Improving Recall in Efficient Language Models.** MQAR and controlled synthetic architecture evaluation.  
+   <https://arxiv.org/abs/2312.04927>  
+   Official implementation: <https://github.com/HazyResearch/zoology>
+2. **The Illusion of State in State-Space Models.** Permutation-composition state tracking and limits on what a state-tracking result proves.  
+   <https://arxiv.org/html/2404.08819v2>
+3. **Byte Latent Transformer: Patches Scale Better Than Tokens.** Byte-patch architecture and FLOP-controlled comparison as motivation for counting front-end work.  
+   <https://arxiv.org/abs/2412.09871>
+4. **Mamba: Linear-Time Sequence Modeling with Selective State Spaces.** Selective copying and induction probes as later diagnostic extensions.  
+   <https://arxiv.org/abs/2312.00752>
+5. **Adaptive Computation Time for Recurrent Neural Networks.** Learned internal computation steps and ponder-cost tradeoffs.  
+   <https://arxiv.org/abs/1603.08983>
+6. **Large Text Compression Benchmark, corpus maintainer.** enwik8 identity, size, raw format, archive information and original checksums.  
+   <https://mattmahoney.net/dc/textdata.html>
+7. **Hutter Prize.** Related compression context. The current prize page concerns enwik9; it is not the source of this app's enwik8 split/evaluation rules.  
+   <http://prize.hutter1.net/>
+## 20. Final launch checklist
+
+- [ ] Task semantics, reference solvers, splits and scorers are versioned and tested.
+- [ ] Every selected adapter passes applicable mechanics and learning-plumbing gates.
+- [ ] Real ablations, target counts, effective configuration and state policy are verified.
+- [ ] Matching regime, tuning opportunities, seeds and primary endpoints are frozen.
+- [ ] Full work, byte/symbol units, ACT execution and failed-attempt costs are accounted for.
+- [ ] Expanded job matrix and cumulative resource ceilings are visible and approved.
+- [ ] Checkpoints, cancellation, timeouts, resume and exports are tested.
+- [ ] No test tuning, silent retries, hidden truncation or substituted task is allowed.
+- [ ] Reports show limitations, uncertainty, coverage and all planned failures.
+
+Start with MQAR. Make its evidence trustworthy before expanding the benchmark catalogue.

@@ -1,0 +1,10 @@
+{
+  "max_gpu_fraction": 0.8,
+  "max_process_ram_fraction": 0.5,
+  "max_new_artifacts_bytes": 10737418240,
+  "max_checkpoints_per_job": 3,
+  "eval_example_timeout_s": 30.0,
+  "eval_per_cell": 512,
+  "eval_batch_size": 64,
+  "grad_accum_steps": 1
+}

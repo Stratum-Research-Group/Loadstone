@@ -1,4 +1,4 @@
-# Loadstone
+<img src="assets/logo/lockup-horizontal.svg" alt="Loadstone" width="420">
 
 Local-first benchmark harness for comparing trainable sequence-model
 architectures under controlled training and evaluation conditions. It implements
@@ -60,6 +60,13 @@ positions are `QUERY, key` pairs. The gold value never appears in the input; the
 score is cross entropy over 64 value classes at each query-key position, so
 chance is exactly 1/64. Nine in-distribution cells (`L ∈ {128,256,512}` ×
 `K ∈ {4,8,16}`) plus separate length-OOD cells.
+
+## Identity
+
+Logo, lockups, favicon and usage rules live in [`assets/logo/`](assets/logo/).
+The mark is a lodestone: a stone with an induced field around it, one charged
+facet, rust on graphite on paper. Regenerate with
+`python assets/logo/build_assets.py`.
 
 ## Layout
 

@@ -1,4 +1,6 @@
-<img src="assets/logo/lockup-horizontal.svg" alt="Loadstone" width="420">
+<p align="center">
+  <img src="assets/loadstone_logo.jpg" alt="Loadstone — Stratum Research Group" width="700" />
+</p>
 
 Local-first benchmark harness for comparing trainable sequence-model
 architectures under controlled training and evaluation conditions. It implements

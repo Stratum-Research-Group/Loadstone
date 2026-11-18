@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1376" height="768" viewBox="0 0 1376 768">
+  <defs>
+    <style>
+      .bg { fill: #eaeaea; }
+      .divider { stroke: #000000; stroke-width: 8; stroke-linecap: square; }
+      .title { font-family: "Liberation Sans", "Nimbus Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 114px; font-weight: bold; fill: #000000; letter-spacing: -1.5px; }
+      .stratum { font-family: "Liberation Sans", "Nimbus Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 78px; font-weight: bold; fill: #000000; letter-spacing: -1.5px; }
+    </style>
+  </defs>
+
+  <!-- Matte Neutral Background -->
+  <rect width="1376" height="768" class="bg"/>
+
+  <!-- Left Emblem Mark -->
+  <g id="emblem-group">
+
+    <!-- Outer Precision Bounding Reticle -->
+    <rect x="205" y="219" width="330" height="330" fill="none" stroke="#000000" stroke-width="6" rx="8"/>
+    <circle cx="370" cy="384" r="165" fill="none" stroke="#000000" stroke-width="4" stroke-dasharray="8 8"/>
+    <line x1="265" y1="279" x2="475" y2="279" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="265" y1="279" x2="265" y2="489" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="265" y1="349" x2="475" y2="349" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="335" y1="279" x2="335" y2="489" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="265" y1="419" x2="475" y2="419" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="405" y1="279" x2="405" y2="489" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="265" y1="489" x2="475" y2="489" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+<line x1="475" y1="279" x2="475" y2="489" stroke="#000000" stroke-width="2" stroke-dasharray="4 6"/>
+
+    <!-- Associative Trajectory Lines -->
+    <polyline points="265,349 335,419 405,279 475,419" fill="none" stroke="#000000" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- Active Key-Value Anchor Nodes -->
+    <circle cx="265" cy="349" r="14" fill="#000000"/>
+    <circle cx="265" cy="349" r="5" fill="#eaeaea"/>
+    <circle cx="335" cy="419" r="10" fill="#000000"/>
+    <circle cx="405" cy="279" r="14" fill="#000000"/>
+    <circle cx="405" cy="279" r="5" fill="#eaeaea"/>
+    <circle cx="475" cy="419" r="16" fill="#000000"/>
+    <circle cx="475" cy="419" r="6" fill="#eaeaea"/>
+    <circle cx="265" cy="279" r="4" fill="#000000"/>
+<circle cx="335" cy="279" r="4" fill="#000000"/>
+<circle cx="475" cy="279" r="4" fill="#000000"/>
+<circle cx="335" cy="349" r="4" fill="#000000"/>
+<circle cx="405" cy="349" r="4" fill="#000000"/>
+<circle cx="475" cy="349" r="4" fill="#000000"/>
+<circle cx="265" cy="419" r="4" fill="#000000"/>
+<circle cx="405" cy="419" r="4" fill="#000000"/>
+<circle cx="265" cy="489" r="4" fill="#000000"/>
+<circle cx="335" cy="489" r="4" fill="#000000"/>
+<circle cx="405" cy="489" r="4" fill="#000000"/>
+<circle cx="475" cy="489" r="4" fill="#000000"/>
+
+    <line x1="370" y1="209" x2="370" y2="229" stroke="#000000" stroke-width="6"/>
+    <line x1="370" y1="539" x2="370" y2="559" stroke="#000000" stroke-width="6"/>
+    <line x1="195" y1="384" x2="215" y2="384" stroke="#000000" stroke-width="6"/>
+    <line x1="525" y1="384" x2="545" y2="384" stroke="#000000" stroke-width="6"/>
+    
+  </g>
+
+  <!-- Central Vertical Divider -->
+  <line x1="632" y1="185" x2="632" y2="582" class="divider"/>
+
+  <!-- Typographic Identity Stack -->
+  <text x="688" y="322" class="title">Loadstone</text>
+  <text x="688" y="416" class="stratum">Stratum</text>
+  <text x="688" y="492" class="stratum">Research</text>
+  <text x="688" y="568" class="stratum">Group</text>
+</svg>

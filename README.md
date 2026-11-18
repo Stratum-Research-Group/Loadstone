@@ -97,6 +97,7 @@ studies/<study_id>/       protocol, approval, gates, jobs, tables, charts, repor
 |---|---|
 | [`docs/spec-v0.1.txt`](docs/spec-v0.1.txt) | the implementation contract this repo is built against |
 | [`docs/REVIEW.md`](docs/REVIEW.md) | review of that spec: decisions taken, measured findings, risks |
+| [`docs/DIAGRAMS.md`](docs/DIAGRAMS.md) | system architecture and experiment execution pipeline diagrams |
 | [`assets/logo/README.md`](assets/logo/README.md) | identity rules |
 
 Licensed under the [MIT License](LICENSE).

@@ -1,0 +1,280 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" width="1600" height="1100" style="background:#F4F1EA; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.07" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#15161A" />
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#C8452B" />
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2B6CB0" />
+    </marker>
+  </defs>
+
+  <!-- Header Banner -->
+  <rect x="0" y="0" width="1600" height="90" fill="#15161A" />
+  <!-- Brand Lodestone Mark Accent -->
+  <polygon points="50,22 71,33.5 50,45 29,33.5" fill="#C8452B"/>
+  <polygon points="29,33.5 50,45 50,68 29,56.5" fill="#FFFFFF" fill-opacity="0.9"/>
+  <polygon points="71,33.5 50,45 50,68 71,56.5" fill="#888888"/>
+  <path d="M24.5 37 A30 30 0 0 1 40.5 19.8" fill="none" stroke="#C8452B" stroke-width="3.2"/>
+  <path d="M75.5 53 A30 30 0 0 1 59.5 70.2" fill="none" stroke="#C8452B" stroke-width="3.2"/>
+
+  <text x="95" y="47" fill="#FFFFFF" font-size="26" font-weight="bold" letter-spacing="0.5">LOADSTONE</text>
+  <text x="260" y="47" fill="#A0AEC0" font-size="20" font-weight="normal">| System Architecture Diagram (spec-v0.1)</text>
+  <text x="95" y="70" fill="#E2E8F0" font-size="13">Local-First Sequence-Model Benchmark Harness &amp; Verifiable Gate Engine</text>
+  <rect x="1410" y="30" width="130" height="30" rx="6" fill="#C8452B" />
+  <text x="1475" y="50" fill="#FFFFFF" font-size="13" font-weight="bold" text-anchor="middle">MILESTONE 1</text>
+
+  <!-- Section 1: User & Control Plane (Top Left) -->
+  <g transform="translate(60, 130)">
+    <rect width="440" height="230" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="440" height="42" rx="10" fill="#15161A" />
+    <rect y="32" width="440" height="10" fill="#15161A" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">1. Control &amp; Interface Surface</text>
+    <text x="420" y="27" fill="#CBD5E0" font-size="12" text-anchor="end">CLI &amp; UI Layer</text>
+
+    <!-- Sub-blocks -->
+    <rect x="20" y="60" width="190" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="85" fill="#15161A" font-size="14" font-weight="bold">Unified CLI</text>
+    <text x="35" y="105" fill="#6B7280" font-size="12">src/loadstone/cli.py</text>
+    <text x="35" y="120" fill="#2B6CB0" font-size="11">plan, freeze, approve, run</text>
+
+    <rect x="230" y="60" width="190" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="245" y="85" fill="#15161A" font-size="14" font-weight="bold">Desktop UI / API</text>
+    <text x="245" y="105" fill="#6B7280" font-size="12">Localhost binding</text>
+    <text x="245" y="120" fill="#6B7280" font-size="11">Non-cloud standalone</text>
+
+    <rect x="20" y="145" width="400" height="65" rx="6" fill="#EDF2F7" stroke="#D1CBC1" />
+    <text x="35" y="170" fill="#15161A" font-size="13" font-weight="bold">Explicit Gate Commands</text>
+    <text x="35" y="192" fill="#3B3E46" font-size="12">loadstone validate (Gates 0, 1) &amp; loadstone overfit (Gate 2)</text>
+  </g>
+
+  <!-- Section 2: Protocol & Governance Engine (Top Center) -->
+  <g transform="translate(560, 130)">
+    <rect width="480" height="230" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="480" height="42" rx="10" fill="#2B6CB0" />
+    <rect y="32" width="480" height="10" fill="#2B6CB0" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">2. Protocol Governance &amp; Expansion</text>
+    <text x="460" y="27" fill="#EBF8FF" font-size="12" text-anchor="end">Immutable Contracts</text>
+
+    <rect x="20" y="60" width="205" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="32" y="85" fill="#15161A" font-size="13" font-weight="bold">Protocol Resolver</text>
+    <text x="32" y="103" fill="#6B7280" font-size="11">Validate schemas</text>
+    <text x="32" y="118" fill="#2B6CB0" font-size="11">protocols/mqar-v1.json</text>
+
+    <rect x="245" y="60" width="215" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="257" y="85" fill="#15161A" font-size="13" font-weight="bold">Matrix Expander</text>
+    <text x="257" y="103" fill="#6B7280" font-size="11">5 models × 3 seeds × 3 lrs</text>
+    <text x="257" y="118" fill="#C8452B" font-size="11">Full 60-job grid view</text>
+
+    <rect x="20" y="145" width="440" height="65" rx="6" fill="#EBF8FF" stroke="#2B6CB0" stroke-width="1.2" />
+    <text x="35" y="170" fill="#2B6CB0" font-size="13" font-weight="bold">Cryptographic Freeze &amp; Spend Approval</text>
+    <text x="35" y="192" fill="#15161A" font-size="12">SHA-256 protocol hash · Strict hour/FLOP cost ceiling budget</text>
+  </g>
+
+  <!-- Section 3: Verification & Preflight Gates (Top Right) -->
+  <g transform="translate(1100, 130)">
+    <rect width="440" height="230" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="440" height="42" rx="10" fill="#2F855A" />
+    <rect y="32" width="440" height="10" fill="#2F855A" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">3. Verification &amp; Gate Engine</text>
+    <text x="420" y="27" fill="#F0FFF4" font-size="12" text-anchor="end">Preflight Enforcers</text>
+
+    <rect x="20" y="58" width="120" height="75" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="30" y="80" fill="#2F855A" font-size="12" font-weight="bold">Gate 0: Data</text>
+    <text x="30" y="98" fill="#6B7280" font-size="11">Oracle solver</text>
+    <text x="30" y="113" fill="#6B7280" font-size="11">Pure scorer</text>
+    <text x="30" y="126" fill="#15161A" font-size="10">Exact fixtures</text>
+
+    <rect x="155" y="58" width="130" height="75" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="165" y="80" fill="#2F855A" font-size="12" font-weight="bold">Gate 1: Adapter</text>
+    <text x="165" y="98" fill="#6B7280" font-size="11">Shape contract</text>
+    <text x="165" y="113" fill="#6B7280" font-size="11">State ownership</text>
+    <text x="165" y="126" fill="#15161A" font-size="10">Size search</text>
+
+    <rect x="300" y="58" width="120" height="75" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="310" y="80" fill="#2F855A" font-size="12" font-weight="bold">Gate 2: Learn</text>
+    <text x="310" y="98" fill="#6B7280" font-size="11">Overfit sweep</text>
+    <text x="310" y="113" fill="#6B7280" font-size="11">≥95% accuracy</text>
+    <text x="310" y="126" fill="#15161A" font-size="10">Plumbing check</text>
+
+    <rect x="20" y="145" width="400" height="65" rx="6" fill="#F0FFF4" stroke="#2F855A" />
+    <text x="35" y="170" fill="#2F855A" font-size="13" font-weight="bold">Preflight Hardware Enforcer</text>
+    <text x="35" y="192" fill="#15161A" font-size="12">Checks VRAM, CUDA device availability, disk space, limits</text>
+  </g>
+
+  <!-- Connectors between Top Row -->
+  <line x1="500" y1="245" x2="560" y2="245" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="1040" y1="245" x2="1100" y2="245" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Section 4: Data Engine (Middle Left) -->
+  <g transform="translate(60, 420)">
+    <rect width="440" height="300" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="440" height="42" rx="10" fill="#3B3E46" />
+    <rect y="32" width="440" height="10" fill="#3B3E46" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">4. Dataset &amp; Split Subsystem</text>
+    <text x="420" y="27" fill="#CBD5E0" font-size="12" text-anchor="end">datasets/mqar.py</text>
+
+    <rect x="20" y="60" width="400" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="85" fill="#15161A" font-size="14" font-weight="bold">MQAR Generator &amp; Oracle</text>
+    <text x="35" y="105" fill="#6B7280" font-size="12">Alphabet: PAD=0, QUERY=1, END=2, Keys 3–66, Values 67–130</text>
+    <text x="35" y="120" fill="#15161A" font-size="12">Gold values never appear in input stream; chance = 1/64</text>
+
+    <rect x="20" y="145" width="400" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="170" fill="#15161A" font-size="14" font-weight="bold">Split Materialisation &amp; Locking</text>
+    <text x="35" y="190" fill="#6B7280" font-size="12">9 In-distribution cells (L ∈ (128, 256, 512) × K ∈ (4, 8, 16))</text>
+    <text x="35" y="205" fill="#C8452B" font-size="12">SHA-256 dataset-manifest.json locks held-out splits</text>
+
+    <rect x="20" y="230" width="400" height="50" rx="6" fill="#F7FAFC" stroke="#D1CBC1" />
+    <text x="35" y="260" fill="#15161A" font-size="12" font-weight="bold">Validation (512/cell) &amp; Confirmation Test Splits</text>
+  </g>
+
+  <!-- Section 5: Architecture Adapters & Model Subsystem (Middle Center) -->
+  <g transform="translate(560, 420)">
+    <rect width="480" height="300" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="480" height="42" rx="10" fill="#6B46C1" />
+    <rect y="32" width="480" height="10" fill="#6B46C1" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">5. Model Adapter Boundary &amp; Ablations</text>
+    <text x="460" y="27" fill="#E9D8FD" font-size="12" text-anchor="end">models/ &amp; blocks.py</text>
+
+    <rect x="20" y="60" width="440" height="75" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="82" fill="#15161A" font-size="13" font-weight="bold">Adapter Contract &amp; Capability Declarations</text>
+    <text x="35" y="100" fill="#6B7280" font-size="11">metadata(), build(), encode(), train_step(), predict(), reset_state()</text>
+    <text x="35" y="118" fill="#6B46C1" font-size="11">Unsupported cells marked explicitly (NEVER recorded as zero)</text>
+
+    <!-- Model Grid -->
+    <g transform="translate(20, 150)">
+      <rect x="0" y="0" width="80" height="65" rx="5" fill="#FAF5FF" stroke="#6B46C1" />
+      <text x="40" y="24" fill="#6B46C1" font-size="14" font-weight="bold" text-anchor="middle">T0</text>
+      <text x="40" y="42" fill="#15161A" font-size="10" text-anchor="middle">Transformer</text>
+      <text x="40" y="55" fill="#6B7280" font-size="9" text-anchor="middle">Baseline</text>
+
+      <rect x="90" y="0" width="80" height="65" rx="5" fill="#FAF5FF" stroke="#6B46C1" />
+      <text x="130" y="24" fill="#6B46C1" font-size="14" font-weight="bold" text-anchor="middle">B0</text>
+      <text x="130" y="42" fill="#15161A" font-size="10" text-anchor="middle">Candidate</text>
+      <text x="130" y="55" fill="#6B7280" font-size="9" text-anchor="middle">Core Backb.</text>
+
+      <rect x="180" y="0" width="80" height="65" rx="5" fill="#FAF5FF" stroke="#6B46C1" />
+      <text x="220" y="24" fill="#6B46C1" font-size="14" font-weight="bold" text-anchor="middle">B1</text>
+      <text x="220" y="42" fill="#15161A" font-size="10" text-anchor="middle">+ Memory</text>
+      <text x="220" y="55" fill="#6B7280" font-size="9" text-anchor="middle">Chunk LinAttn</text>
+
+      <rect x="270" y="0" width="80" height="65" rx="5" fill="#FAF5FF" stroke="#6B46C1" />
+      <text x="310" y="24" fill="#6B46C1" font-size="14" font-weight="bold" text-anchor="middle">B2</text>
+      <text x="310" y="42" fill="#15161A" font-size="10" text-anchor="middle">+ Reason</text>
+      <text x="310" y="55" fill="#6B7280" font-size="9" text-anchor="middle">Loop Block</text>
+
+      <rect x="360" y="0" width="80" height="65" rx="5" fill="#FAF5FF" stroke="#C8452B" stroke-width="1.5" />
+      <text x="400" y="24" fill="#C8452B" font-size="14" font-weight="bold" text-anchor="middle">B3</text>
+      <text x="400" y="42" fill="#15161A" font-size="10" text-anchor="middle">Full Model</text>
+      <text x="400" y="55" fill="#6B7280" font-size="9" text-anchor="middle">Mem + Reason</text>
+    </g>
+
+    <rect x="20" y="230" width="440" height="50" rx="6" fill="#F7FAFC" stroke="#D1CBC1" />
+    <text x="35" y="250" fill="#15161A" font-size="12" font-weight="bold">Parameter Matched Grid (1M ± 5%)</text>
+    <text x="35" y="268" fill="#6B7280" font-size="11">Expanded width search (112, 144, 224, 288) maintains parity</text>
+  </g>
+
+  <!-- Section 6: Execution Engine & Telemetry (Middle Right) -->
+  <g transform="translate(1100, 420)">
+    <rect width="440" height="300" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="440" height="42" rx="10" fill="#C8452B" />
+    <rect y="32" width="440" height="10" fill="#C8452B" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">6. Runner, Budget &amp; Lifecycle</text>
+    <text x="420" y="27" fill="#FED7D7" font-size="12" text-anchor="end">runner.py</text>
+
+    <rect x="20" y="60" width="400" height="70" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="85" fill="#15161A" font-size="13" font-weight="bold">Controlled Training Loop</text>
+    <text x="35" y="103" fill="#6B7280" font-size="11">Effective batch 32 · AdamW · Cosine lr schedule</text>
+    <text x="35" y="120" fill="#15161A" font-size="11">Evaluated at step intervals against validation splits</text>
+
+    <rect x="20" y="145" width="190" height="65" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="30" y="170" fill="#C8452B" font-size="12" font-weight="bold">Lifecycle Controls</text>
+    <text x="30" y="190" fill="#15161A" font-size="11">Pause / Cancel / Resume</text>
+    <text x="30" y="202" fill="#6B7280" font-size="10">control.json signals</text>
+
+    <rect x="230" y="145" width="190" height="65" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="240" y="170" fill="#C8452B" font-size="12" font-weight="bold">Checkpoints</text>
+    <text x="240" y="190" fill="#15161A" font-size="11">Verified atomic saves</text>
+    <text x="240" y="202" fill="#6B7280" font-size="10">Resumes without leaks</text>
+
+    <rect x="20" y="225" width="400" height="55" rx="6" fill="#FFF5F5" stroke="#C8452B" />
+    <text x="35" y="247" fill="#C8452B" font-size="12" font-weight="bold">Hard Budget Enforcer</text>
+    <text x="35" y="265" fill="#15161A" font-size="11">Enforces hour/FLOP limits; aborts if limit reached</text>
+  </g>
+
+  <!-- Connectors Middle Row -->
+  <line x1="500" y1="570" x2="560" y2="570" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="1040" y1="570" x2="1100" y2="570" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="780" y1="360" x2="780" y2="420" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="1320" y1="360" x2="1320" y2="420" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Section 7: Storage & Append-Only Artifacts (Bottom Left/Center) -->
+  <g transform="translate(60, 770)">
+    <rect width="700" height="260" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="700" height="42" rx="10" fill="#15161A" />
+    <rect y="32" width="700" height="10" fill="#15161A" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">7. Self-Describing Artifact Contract &amp; SQLite Store</text>
+    <text x="680" y="27" fill="#CBD5E0" font-size="12" text-anchor="end">store.py · studies/&lt;study_id&gt;/</text>
+
+    <!-- Sub-boxes -->
+    <rect x="20" y="60" width="320" height="80" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="85" fill="#15161A" font-size="13" font-weight="bold">Self-Describing Directory Tree</text>
+    <text x="35" y="105" fill="#6B7280" font-size="11">protocol.resolved.json · protocol.sha256</text>
+    <text x="35" y="120" fill="#6B7280" font-size="11">approval.json · environment.json · gates.json</text>
+    <text x="35" y="133" fill="#6B7280" font-size="11">jobs/&lt;job_id&gt;/summary.json, step_metrics.csv</text>
+
+    <rect x="360" y="60" width="320" height="80" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="375" y="85" fill="#15161A" font-size="13" font-weight="bold">SQLite Index (studies/loadstone.db)</text>
+    <text x="375" y="105" fill="#6B7280" font-size="11">Pure query accelerator for large suites</text>
+    <text x="375" y="120" fill="#6B7280" font-size="11">Files stay primary source of truth</text>
+    <text x="375" y="133" fill="#2B6CB0" font-size="11">Exportable and reproducible without DB</text>
+
+    <rect x="20" y="155" width="660" height="85" rx="6" fill="#EDF2F7" stroke="#D1CBC1" />
+    <text x="35" y="180" fill="#15161A" font-size="13" font-weight="bold">Verification Invariants</text>
+    <text x="35" y="200" fill="#3B3E46" font-size="12">1. Append-only artifacts ensure zero in-place mutation of past runs</text>
+    <text x="35" y="220" fill="#3B3E46" font-size="12">2. Checkpoint selection strictly based on validation splits; confirmation runs test split once</text>
+  </g>
+
+  <!-- Section 8: Analysis & Deterministic Reporting (Bottom Right) -->
+  <g transform="translate(800, 770)">
+    <rect width="740" height="260" rx="10" fill="#FDFCF9" stroke="#D1CBC1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect width="740" height="42" rx="10" fill="#1E2025" />
+    <rect y="32" width="740" height="10" fill="#1E2025" />
+    <text x="20" y="27" fill="#FFFFFF" font-size="16" font-weight="bold">8. Evaluation, Analysis &amp; Report Exporter</text>
+    <text x="720" y="27" fill="#A0AEC0" font-size="12" text-anchor="end">report.py · scoring.py</text>
+
+    <rect x="20" y="60" width="220" height="90" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="35" y="85" fill="#15161A" font-size="13" font-weight="bold">Pure Scorers</text>
+    <text x="35" y="105" fill="#6B7280" font-size="11">Cross-entropy value loss</text>
+    <text x="35" y="120" fill="#6B7280" font-size="11">Exact top-1 accuracy</text>
+    <text x="35" y="135" fill="#6B7280" font-size="11">bits-per-byte (enwik8)</text>
+
+    <rect x="260" y="60" width="220" height="90" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="275" y="85" fill="#15161A" font-size="13" font-weight="bold">Report Exporters</text>
+    <text x="275" y="105" fill="#6B7280" font-size="11">Plain text (report.txt)</text>
+    <text x="275" y="120" fill="#6B7280" font-size="11">JSON summary (report.json)</text>
+    <text x="275" y="135" fill="#6B7280" font-size="11">Tabular CSV (tables/*.csv)</text>
+
+    <rect x="500" y="60" width="220" height="90" rx="6" fill="#FFFFFF" stroke="#D1CBC1" />
+    <text x="515" y="85" fill="#15161A" font-size="13" font-weight="bold">Standalone Charts</text>
+    <text x="515" y="105" fill="#6B7280" font-size="11">Learning curves (.svg)</text>
+    <text x="515" y="120" fill="#6B7280" font-size="11">Accuracy by length × K</text>
+    <text x="515" y="135" fill="#6B7280" font-size="11">Pareto compute curves</text>
+
+    <rect x="20" y="165" width="700" height="75" rx="6" fill="#FFF5F5" stroke="#C8452B" stroke-width="1.2" />
+    <text x="35" y="190" fill="#C8452B" font-size="13" font-weight="bold">Strict Non-Misleading Aggregation</text>
+    <text x="35" y="210" fill="#15161A" font-size="12">Every chart traceable to raw measurements · No collapsed single scores · Separate seed spreads</text>
+    <text x="35" y="228" fill="#6B7280" font-size="11">Reports state explicitly: "censored-not-converged" if job halted by budget caps</text>
+  </g>
+
+  <!-- Connectors Bottom Row -->
+  <line x1="1260" y1="720" x2="1260" y2="770" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="800" y1="650" x2="450" y2="770" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4" />
+  <line x1="760" y1="900" x2="800" y2="900" stroke="#15161A" stroke-width="2" marker-end="url(#arrow)" />
+
+</svg>
